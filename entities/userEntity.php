@@ -10,10 +10,10 @@ class UserEntity extends Dbh {
     private $emailAddress;
     private $userProfileId;
 
-    public function __construct(){
-        
+    public function __construct(){  
     }
-
+	
+	//userId
     public function set_userId($userId) {
 		$this->userId = $userId;
 	}
@@ -22,6 +22,7 @@ class UserEntity extends Dbh {
 		return $this->userId;
 	}
 
+	//username
 	public function set_username($username) {
 		$this->username = $username;
 	}
@@ -30,6 +31,7 @@ class UserEntity extends Dbh {
 		return $this->username;
 	}
 
+	//password
 	public function set_password($password) {
 		$this->password = $password;
 	}
@@ -38,14 +40,16 @@ class UserEntity extends Dbh {
 		return $this->username;
 	}
 
-	public function set_name($name) {
-		$this->name = $name;
+	//firstName
+	public function set_firstName($firstName) {
+		$this->firstName = $firstName;
 	}
 
-	public function get_name() {
-		return $this->name;
+	public function get_firstName() {
+		return $this->firstName;
 	}
 
+	//surname
 	public function set_surname($surname) {
 		$this->surname = $surname;
 	}
@@ -54,6 +58,7 @@ class UserEntity extends Dbh {
 		return $this->get_surname;
 	}
 
+	//phoneNum
 	public function set_phoneNum($phoneNum) {
 		$this->phoneNum = $phoneNum;
 	}
@@ -62,6 +67,7 @@ class UserEntity extends Dbh {
 		return $this->phoneNum;
 	}
 
+	//emailAddress
 	public function set_emailAddress($emailAddress) {
 		$this->emailAddress = $emailAddress;
 	}
@@ -70,6 +76,7 @@ class UserEntity extends Dbh {
 		return $this->get_emailAddress;
 	}
 
+	//userProfileId
 	public function set_userProfileId($userProfileId) {
 		$this->userProfileId = $userProfileId;
 	}
@@ -143,12 +150,12 @@ class UserEntity extends Dbh {
 		$conn = $this->connectDB();
 
         if($this->checkUsername($this->username) == false || $this->checkPhoneNumber($this->phoneNum) == false) {
-            $error = "Username or phoneNum number has already been used!";
+            $error = "Username or phone number has already been used!";
             return $error;
         }
 
-        $sql = "INSERT INTO users (username, password, name, surname, phoneNum, emailAddress, userProfileId) 
-		VALUES ('$this->username', '$this->password', '$this->name', '$this->surname', '$this->phoneNum', '$this->emailAddress', '$this->userProfileId')";
+        $sql = "INSERT INTO users (username, password, firstName, surname, phoneNum, emailAddress, userProfileId) 
+		VALUES ('$this->username', '$this->password', '$this->firstName', '$this->surname', '$this->phoneNum', '$this->emailAddress', '$this->userProfileId')";
 
         $result = $conn->query($sql);
 
@@ -173,7 +180,7 @@ class UserEntity extends Dbh {
                 $current = array(
                     'userId' => $row['userId'],
 					'username' => $row['username'],
-					'name' => $row['name'],
+					'firstName' => $row['firstName'],
 					'surname' => $row['surname'],
 					'phoneNum' => $row['phoneNum'],
 					'emailAddress' => $row['emailAddress']
@@ -205,7 +212,7 @@ class UserEntity extends Dbh {
                 $current = array(
                     'userId' => $row['userId'],
                     'username' => $row['username'],
-                    'name' => $row['name'],
+                    'firstName' => $row['firstName'],
                     'surname' => $row['surname'],
 					'phoneNum' => $row['phoneNum'],
 					'emailAddress' => $row['emailAddress']
@@ -220,6 +227,33 @@ class UserEntity extends Dbh {
             return $array;
         }
     }
+
+	//List all users that aren't admin.
+	protected function viewUsers()
+    {
+        $array = [];
+        $conn = $this->connectDB();
+        $sql = "SELECT * FROM users WHERE userProfileid = 2";
+        $result = $conn->query($sql);
+
+		//checks to see if there are return results
+        if ($result->num_rows > 0)
+        {
+            while ($row = $result->fetch_assoc())
+            {
+				//adds the necessary components to use for the view in the table
+                $current = array(
+                    'userId' => $row['userId'],
+					'username' => $row['username'],
+                );
+				//pushes them into the array (current)
+                array_push($array, $current);
+            }
+        }
+
+        return $array;
+    }
+	
 
 
 }

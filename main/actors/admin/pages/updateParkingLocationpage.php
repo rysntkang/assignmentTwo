@@ -5,16 +5,21 @@ include "../../../controller/admin/updateParkingLocationController.php";
 
 $locationId = $_SESSION['locationId'];
 $locationName = $_SESSION['locationName'];
+$description = $_SESSION['description'];
 $address = $_SESSION['address'];
-
+$rates = $_SESSION['rates'];
+$ratesLate = $_SESSION['ratesLate'];
 
 if(isset($_POST["updateLocation"]))
 {
     $locationName = $_POST["locationName"];
+    $description = $_POST["description"];
     $address = $_POST["address"];
-    
+    $rates = $_POST["rates"];
+    $ratesLate = $_POST["ratesLate"];
+
     $updateParkingLocation = new UpdateParkingLocationController();
-    $result = $updateParkingLocation->updateParkingLocation($locationId, $locationName, $address);
+    $result = $updateParkingLocation->updateParkingLocation($locationId, $locationName, $description , $address, $rates, $ratesLate);
 
     if($result != "Success")
     {
@@ -57,8 +62,18 @@ if(isset($_POST["updateLocation"]))
                         <input type="text" class="form-control" name="locationName" value="<?=$locationName?>" required>
                     </div>
                     <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <input type="text" class="form-control" name="description" value="<?=$description?>" required>
+                    </div>
+                    <div class="mb-3">
                         <label for="address" class="form-label">Address</label>
                         <input type="text" class="form-control" name="address" value="<?=$address?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rates" class="form-label">Hourly Rates:</label>
+                        <input type="number" value="<?=$rates?>" min="1" max="10" step=".01" name="rates">
+                        <label for="ratesLate" class="form-label">Hourly Late Rates:</label>
+                        <input type="number" value="<?=$ratesLate?>" min="1" max="10" step=".01" name="ratesLate">
                     </div>
                     <button class="btn btn-success" type="submit" name="updateLocation" id="updateButton">Update</button>
                 </form>

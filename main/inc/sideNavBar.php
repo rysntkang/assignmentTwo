@@ -27,6 +27,12 @@
         <li class="nav-header">Parking Locations</li>
 
         <li class="nav-item">
+        <a href="index.php?page=createParkingLocationPage" class="nav-link nav-home">
+          <i class="nav-icon fas fa-parking"></i>
+          <p>Add Parking Location</p>
+        </a>
+
+        <li class="nav-item">
           <a href="index.php?page=viewAllParkingLocationPage" class="nav-link nav-home">
             <i class="nav-icon fas fa-parking"></i>
             <p>View All Parking Locations</p>
@@ -34,9 +40,15 @@
         </li>
 
         <li class="nav-item">
-        <a href="index.php?page=createParkingLocationPage" class="nav-link nav-home">
+        <a href="index.php?page=viewFullBookedPage" class="nav-link nav-home">
           <i class="nav-icon fas fa-parking"></i>
-          <p>Add Parking Location</p>
+          <p>Fully Parked locations</p>
+        </a>
+
+        <li class="nav-item">
+        <a href="index.php?page=viewVacantBookedPage" class="nav-link nav-home">
+          <i class="nav-icon fas fa-parking"></i>
+          <p>Vacant Parking Locations</p>
         </a>
       </li>
 

@@ -9,7 +9,7 @@ include "../header.php";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST["register"])) {
 
-        $name = $_POST['regName'];
+        $firstName = $_POST['regFirstName'];
         $surname = $_POST['regSurname'];
         $phoneNum = $_POST['regPhoneNum'];
         $emailAddress = $_POST['regEmailAddress'];
@@ -18,11 +18,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $userProfileId = 2;
 
         $registerUser = new registerUserController();
-        $result = $registerUser->registerUser($username, $password, $name, $surname, $phoneNum, $emailAddress, $userProfileId);
-    
-        if ($result != "Success")
+        $result = $registerUser->registerUser($username, $password, $firstName, $surname, $phoneNum, $emailAddress, $userProfileId);
+
+        if ($result == "Success")
         {
-            echo "<script>alert('$result');</script>";
+            redirect("/loginPage.php");
         }
         else
         {
@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <form id="login-frm" method="post">
 
         <div class="input-group mb-3">
-          <input type="text" class="form-control" id="regName" autofocus placeholder="First Name" required>
+          <input type="text" class="form-control" name="regFirstName" autofocus placeholder="First Name" required>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
@@ -70,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="input-group mb-3">
-          <input type="text" class="form-control" id="regSurname" autofocus placeholder="Surname" required>
+          <input type="text" class="form-control" name="regSurname" autofocus placeholder="Surname" required>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
@@ -79,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="input-group mb-3">
-          <input type="text" class="form-control" id="regPhoneNum" autofocus placeholder="Phone Number" required>
+          <input type="text" class="form-control" name="regPhoneNum" autofocus placeholder="Phone Number" required>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-phone"></span>
@@ -88,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="input-group mb-3">
-          <input type="text" class="form-control" id="regEmailAddress" autofocus placeholder="Email Address" required>
+          <input type="text" class="form-control" name="regEmailAddress" autofocus placeholder="Email Address" required>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>
@@ -97,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="input-group mb-3">
-          <input type="text" class="form-control" id="regUsername" autofocus placeholder="Username" required>
+          <input type="text" class="form-control" name="regUsername" autofocus placeholder="Username" required>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-user"></span>
@@ -106,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="input-group mb-3">
-          <input type="text" class="form-control" id="regPassword" autofocus placeholder="Password" required>
+          <input type="text" class="form-control" name="regPassword" autofocus placeholder="Password" required>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
