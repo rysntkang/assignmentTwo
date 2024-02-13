@@ -8,7 +8,8 @@ class TransactionEntity extends Dbh
     private $startTime;
     private $endTime;
     private $totalCost;
-    private $duration;
+    private $actualDuration;
+    private $intendedDuration;
 
     private $locationId;
 
@@ -78,22 +79,30 @@ class TransactionEntity extends Dbh
         $this->totalCost = $totalCost;
     }
 
-    //duration
-    public function get_duration(){
-        return $this->duration;
+    //actualDuration
+    public function get_actualDuration(){
+        return $this->actualDuration;
     }
     
-    public function set_duration($duration){
-        $this->duration = $duration;
+    public function set_actualDuration($actualDuration){
+        $this->actualDuration = $actualDuration;
+    }
+
+    //intendedDuration
+    public function get_intendedDuration(){
+        return $this->intendedDuration;
+    }
+    
+    public function set_intendedDuration($intendedDuration){
+        $this->intendedDuration = $intendedDuration;
     }
 
     protected function checkIn() {
         $error;
 		$conn = $this->connectDB();
 
-        // Your insert query
-        $sql = "INSERT INTO transactions (userId, slotId, startTime, duration) 
-        VALUES ('$this->userId','$this->slotId','$this->startTime','$this->duration')";
+        $sql = "INSERT INTO transactions (userId, slotId, startTime, actualDuration, intendedDuration) 
+        VALUES ('$this->userId','$this->slotId','$this->startTime','$this->actualDuration', '$this->intendedDuration')";
 
         $result = $conn->query($sql);
 
@@ -116,8 +125,9 @@ class TransactionEntity extends Dbh
     {
         $array = [];
         $conn = $this->connectDB();
-        $sql = "SELECT transactions.transactionId, transactions.startTime, transactions.endTime, transactions.duration, users.username, users.firstName, users.surname, users.emailAddress 
-        FROM transactions LEFT OUTER JOIN users ON users.userId = transactions.userId 
+        $sql = "SELECT transactions.transactionId, transactions.startTime, transactions.endTime, transactions.actualDuration, transactions.intendedDuration, users.username, users.firstName, users.surname, users.emailAddress 
+        FROM transactions 
+        JOIN users ON users.userId = transactions.userId 
         WHERE slotId = '$this->slotId' AND endTime IS NULL; ";
     
         $result = $conn->query($sql);
@@ -133,7 +143,8 @@ class TransactionEntity extends Dbh
                     'transactionId' => $row['transactionId'],
                     'startTime' => $row['startTime'],
                     'endTime' => $row['endTime'],
-                    'duration' => $row['duration'],
+                    'actualDuration' => $row['actualDuration'],
+                    'intendedDuration' => $row['intendedDuration'],
                     'username' => $row['username'],
                     'firstName' => $row['firstName'],
                     'surname' => $row['surname'],
@@ -172,7 +183,135 @@ class TransactionEntity extends Dbh
 		return $error;
     }
 
+    protected function viewLocationSpec(){
+        $array = [];
+        $conn = $this->connectDB();
+        $sql = "SELECT transactions.transactionId, transactions.startTime, transactions.actualDuration, transactions.intendedDuration, users.username, users.firstName, users.surname, users.emailAddress, parkingslots.slotNum, parkingslots.slotId, parkingslots.availability
+                FROM transactions
+                JOIN users ON users.userId = transactions.userId
+                JOIN parkingslots ON parkingslots.slotId = transactions.slotId
+                JOIN locations ON parkingslots.locationId = locations.locationId
+                WHERE locations.locationId = '$this->locationId' AND transactions.endTime IS NULL;";
+    
+        $result = $conn->query($sql);
 
+		//checks to see if there are return results
+        if ($result->num_rows > 0)
+        {
+            while ($row = $result->fetch_assoc())
+            {
+				//adds the necessary components to use for the view in the table
+                $current = array(
+                    //parkingSlots
+                    'transactionId' => $row['transactionId'],
+                    'startTime' => $row['startTime'],
+                    'actualDuration' => $row['actualDuration'],
+                    'intendedDuration' => $row['intendedDuration'],
+                    'username' => $row['username'],
+                    'firstName' => $row['firstName'],
+                    'surname' => $row['surname'],
+                    'emailAddress' => $row['emailAddress'],
+                    'slotNum' => $row['slotNum'],
+                    'slotId' => $row['slotId'],
+                    'availability' => $row['availability']
+
+                );
+				//pushes them into the array (current)
+                array_push($array, $current);
+            }
+        }
+
+        return $array;
+    }
+
+    protected function viewCurrentlyCheckIn(){
+        $array = [];
+        $conn = $this->connectDB();
+        $sql = "SELECT transactions.transactionId, transactions.startTime, transactions.actualDuration, transactions.intendedDuration, 
+        parkingslots.slotNum, parkingslots.slotId, parkingslots.availability, parkingslots.locationId,
+        locations.locationName, locations.address, locations.capacity, locations.occupied, locations.rates, locations.ratesLate
+                FROM transactions
+                JOIN parkingslots ON parkingslots.slotId = transactions.slotId
+                JOIN locations ON parkingslots.locationId = locations.locationId
+                WHERE transactions.userId = '$this->userId' AND transactions.endTime IS NULL;";
+    
+        $result = $conn->query($sql);
+
+		//checks to see if there are return results
+        if ($result->num_rows > 0)
+        {
+            while ($row = $result->fetch_assoc())
+            {
+				//adds the necessary components to use for the view in the table
+                $current = array(
+
+                    'transactionId' => $row['transactionId'],
+                    'startTime' => $row['startTime'],
+                    'actualDuration' => $row['actualDuration'],
+                    'intendedDuration' => $row['intendedDuration'],
+                    'slotNum' => $row['slotNum'],
+                    'slotId' => $row['slotId'],
+                    'availability' => $row['availability'],
+                    'locationId' => $row['locationId'],
+                    'locationName' => $row['locationName'],
+                    'address' => $row['address'],
+                    'capacity' => $row['capacity'],
+                    'occupied' => $row['occupied'],
+                    'rates' => $row['rates'],
+                    'ratesLate' => $row['ratesLate']
+
+                );
+				//pushes them into the array (current)
+                array_push($array, $current);
+            }
+        }
+
+        return $array;
+    }
+
+    protected function viewAllPrevCheckIn(){
+        $array = [];
+        $conn = $this->connectDB();
+        $sql = "SELECT transactions.transactionId, transactions.startTime, transactions.endTime, transactions.actualDuration, transactions.intendedDuration, 
+        parkingslots.slotNum, parkingslots.slotId, parkingslots.availability, parkingslots.locationId,
+        locations.locationName, locations.address, locations.rates, locations.ratesLate
+                FROM transactions
+                JOIN parkingslots ON parkingslots.slotId = transactions.slotId
+                JOIN locations ON parkingslots.locationId = locations.locationId
+                WHERE transactions.userId = '$this->userId' AND transactions.totalCost IS NOT NULL;";
+    
+        $result = $conn->query($sql);
+
+		//checks to see if there are return results
+        if ($result->num_rows > 0)
+        {
+            while ($row = $result->fetch_assoc())
+            {
+				//adds the necessary components to use for the view in the table
+                $current = array(
+
+                    'transactionId' => $row['transactionId'],
+                    'startTime' => $row['startTime'],
+                    'endTime' => $row['endTime'],
+                    'actualDuration' => $row['actualDuration'],
+                    'intendedDuration' => $row['intendedDuration'],
+                    'slotNum' => $row['slotNum'],
+                    'slotId' => $row['slotId'],
+                    'availability' => $row['availability'],
+                    'locationId' => $row['locationId'],
+                    'locationName' => $row['locationName'],
+                    'address' => $row['address'],
+                    'rates' => $row['rates'],
+                    'ratesLate' => $row['ratesLate']
+
+                );
+				//pushes them into the array (current)
+                array_push($array, $current);
+            }
+        }
+
+        return $array;
+    }
 
 }
 

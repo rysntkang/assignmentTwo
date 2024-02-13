@@ -125,6 +125,35 @@ class ParkingLocationEntity extends Dbh
         return $error;
     }
 
+    protected function get(){
+        $array = [];
+        $conn = $this->connectDB();
+        $sql = "SELECT * FROM locations WHERE locationId = '$this->locationId'";
+        $result = $conn->query($sql);
+
+		//checks to see if there are return results
+        if ($result->num_rows > 0)
+        {
+            while ($row = $result->fetch_assoc())
+            {
+				//adds the necessary components to use for the view in the table
+                $current = array(
+					'locationName' => $row['locationName'],
+                    'description' => $row['description'],
+					'address' => $row['address'],
+                    'rates' => $row['rates'],
+                    'ratesLate' => $row['ratesLate'],
+                    'capacity' => $row['capacity'],
+                    'occupied' => $row['occupied']
+                );
+				//pushes them into the array (current)
+                array_push($array, $current);
+            }
+        }
+
+        return $array;
+    }
+
     //Viewing All Locations
     protected function view()
     {

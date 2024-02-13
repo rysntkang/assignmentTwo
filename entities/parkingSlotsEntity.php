@@ -72,7 +72,34 @@ class ParkingSlotsEntity extends Dbh
         }
 
         return $array;
-    } 
+    }
+
+    //Viewing All Slots depending on the LocationID
+    protected function get()
+    {
+        $array = [];
+        $conn = $this->connectDB();
+        $sql = "SELECT * FROM parkingSlots WHERE slotId = '$this->slotId'";
+    
+        $result = $conn->query($sql);
+
+		//checks to see if there are return results
+        if ($result->num_rows > 0)
+        {
+            while ($row = $result->fetch_assoc())
+            {
+				//adds the necessary components to use for the view in the table
+                $current = array(
+                    'availability' => $row['availability'],
+                    'slotNum' => $row['slotNum']
+                );
+				//pushes them into the array (current)
+                array_push($array, $current);
+            }
+        }
+
+        return $array;
+    }
 }
 
 ?>
