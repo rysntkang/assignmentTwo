@@ -34,7 +34,7 @@ function redirectHomePage($userProfileId){
     redirect("/actors/admin");
   }
   elseif ($userProfileId == 2){
-    redirect("actors/user");
+    redirect("/actors/user");
   }
 }
 

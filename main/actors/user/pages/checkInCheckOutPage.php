@@ -14,9 +14,29 @@ include "../../../controller/getParkingSlotController.php";
 $locationId = $_SESSION['locationId'];
 $slotId = $_SESSION['slotId'];
 
+//Retrieve Details from parkingLocations DB based on $locationId
+$getParkingLocation = new GetParkingLocationController();
+$array = $getParkingLocation->getParkingLocation($locationId);
+
+$locationName = $array[0]['locationName'];
+$description = $array[0]['description'];
+$address = $array[0]['address'];
+$rates = $array[0]['rates'];
+$ratesLate = $array[0]['ratesLate'];
+$capacity = $array[0]['capacity'];
+$occupied = $array[0]['occupied'];
+
+$getParkingSlot = new GetParkingSlotController();
+$array = $getParkingSlot->getParkingSlot($slotId);
+
+$availability = $array[0]['availability'];
+$slotNum = $array[0]['slotNum'];
+
 if(isset($_POST["checkInTransaction"]))
 {
-    $userId = $_POST["userId"];
+    //Using the currentUserProfileId, which was set upon login
+    $userId = $_SESSION["currentUserProfileId"];
+
     //locationId from $_SESSION['locationId']
     //slotId from $_SESSION['slotId']
 
@@ -27,6 +47,7 @@ if(isset($_POST["checkInTransaction"]))
     $startTimeDateTime = new DateTime($startTime);
     $startTime = $startTimeDateTime->format('Y-m-d H:i');
     
+    //Check if user has entered a date in the past.
     if ($startTime < $actualDate){
       echo "<script>alert('The date you have entered is in the past.');</script>";
     }
@@ -34,17 +55,34 @@ if(isset($_POST["checkInTransaction"]))
       $intendedDuration = $_POST["intendedDuration"];
       $actualDuration = $_POST["actualDuration"];
 
+      //Adding duration to the startTime to get an expectedEndTime
+      $startTimeDateTime = new DateTime($startTime);
+      $endTimeDateTime = clone $startTimeDateTime;
+
+      $endTimeDateTime->modify("+" . $intendedDuration . " hours");
+      $expectedEndTime = $endTimeDateTime->format("Y-m-d H:i");
+
+      //Parking ends at $expectedEndTime
+      
+      //Calculating the total cost of the transaction 
+      $totalCost = $intendedDuration * $rates;
+
+      //Total Cost of parking will be $totalCost
+      //The Late rates will be $ratesLate / Hr.
+      
       $checkInTransaction = new CheckInTransactionController();
       $error = $checkInTransaction->checkInTransaction($userId, $locationId, $slotId, $startTime, $actualDuration, $intendedDuration);
 
       if ($error == "Success")
       {
-          $_SESSION['availability'] = 0;
-          header("location:index.php?page=viewParkingSlotPage");
+        $notificationMsg = json_encode("Dear ". $_SESSION['currentUsername'] . ".\nYour parking will end at " . $expectedEndTime . ".\nThe Total Costs of parking will be " . $totalCost . ".\nDo note that the Late rates will be " . $ratesLate . "/Hr.");
+        $_SESSION['availability'] = 0;
+        echo "<script>alert('$notificationMsg')
+        window.location.replace('index.php?page=checkInCheckOutPage')</script>";
       }
       else
       {
-          echo "<script>alert('$error');</script>";
+        echo "<script>alert('$error');</script>";
       }
     }
 }
@@ -59,15 +97,20 @@ if(isset($_POST["checkOutTransaction"]))
     $endTime = $_POST["checkOutEndTime"];
     $totalCost = $_POST["checkOutTotalCost"];
 
+    $intendedCost = $_POST["checkOutIntendedCost"];
+    $lateCost = $_POST["checkOutLateCost"];
+
     $checkOutTransaction = new CheckOutTransactionController();
     $error = $checkOutTransaction->checkOutTransaction($transactionId, $locationId, $slotId, $endTime, $totalCost);
- 
-    header("location:index.php?page=viewAllParkingSlotsPage");
-}
 
-if(isset($_POST["back"]))
-{
-    header("location:index.php?page=viewLocationSpecificParkedUsersPage");
+    if ($lateCost != 0) {
+    $notificationMsg = json_encode("Dear ". $_SESSION['currentUsername'] . ".\nYour costs will be $" . $intendedCost . ".\nYour additional late cost will be $". $lateCost . ".\nYour total costs will be $". $totalCost . ".");
+
+    } else {
+    $notificationMsg = json_encode("Dear ". $_SESSION['currentUsername'] . ".\nYour total costs will be $" . $intendedCost . ".");
+    }
+    echo "<script>alert('$notificationMsg')
+    window.location.replace('index.php?page=viewAllParkingSlotsPage')</script>";
 }
 
 ?>
@@ -113,36 +156,10 @@ if(isset($_POST["back"]))
 
 </style>
 
-<?php
-
-//Retrieve Details from parkingLocations DB based on $locationId
-$getParkingLocation = new GetParkingLocationController();
-$array = $getParkingLocation->getParkingLocation($locationId);
-
-$locationName = $array[0]['locationName'];
-$description = $array[0]['description'];
-$address = $array[0]['address'];
-$rates = $array[0]['rates'];
-$ratesLate = $array[0]['ratesLate'];
-$capacity = $array[0]['capacity'];
-$occupied = $array[0]['occupied'];
-
-$getParkingSlot = new GetParkingSlotController();
-$array = $getParkingSlot->getParkingSlot($slotId);
-
-$availability = $array[0]['availability'];
-$slotNum = $array[0]['slotNum'];
-
-?>
-
 <div class="container">
   <div class="row">
     <div class="card">
       <div class="card-body">
-
-          <div class="mb-1">
-            <label class="form-label">View parking details within this parking location:</label>
-          </div>
         
           <div class="mb-3">
             <label for="date" class="form-label">Location Name:</label>
@@ -167,12 +184,6 @@ $slotNum = $array[0]['slotNum'];
             <?php echo($slotNum) ?>
           </div>
 
-          <div class="mb-3">
-            <form method = "POST">
-              <button class="btn btn-secondary" type="submit" name="back">Back</button>
-            </form>
-          </div>
-
         </div>
       </div>
   </div>
@@ -190,7 +201,7 @@ $slotNum = $array[0]['slotNum'];
         echo '      <th class="text-center">Name</th>';
         echo '      <th class="text-center">Email Address</th>';
         echo '      <th class="text-center">Check In Time</th>';
-        echo '      <th class="text-center">Duration</th>';
+        echo '      <th class="text-center">Intended Duration</th>';
         echo '      <th class="text-center">Expected Check Out Time</th>';
         echo '      <th class="text-center">Actual Check Out Time <br> FOR TESTING</th>';
         echo '      <th class="text-center">Actions</th>';
@@ -201,9 +212,9 @@ $slotNum = $array[0]['slotNum'];
         echo '      <td>' . $row['firstName'] . " " . $row['surname'] . '</td>';
         echo '      <td>' . $row['emailAddress'] . '</td>';                   
         echo '      <td>' . $row['startTime'] . '</td>';
-        echo '      <td>' . $row['actualDuration'] . '</td>';
+        echo '      <td>' . $row['intendedDuration'] . '</td>';
 
-        //Adding duration to the startTime to get an expectedEndTime and actualEndTime
+        //Adding duration to the startTime to get an expectedEndTime
         $startTimeDateTime = new DateTime($row['startTime']);
         $endTimeDateTime = clone $startTimeDateTime;
         $endTimeDateTime->modify("+" . $row['intendedDuration'] . " hours");
@@ -219,7 +230,11 @@ $slotNum = $array[0]['slotNum'];
         if ($row['actualDuration'] > $row['intendedDuration'])
         {
           $lateCosts = ($row['actualDuration'] - $row['intendedDuration']) * $ratesLate;
-        } else { $lateCosts = 0; }
+        } 
+        else 
+        { 
+          $lateCosts = 0; 
+        }
         $totalCost = $intendedCosts + $lateCosts;
 
         echo '      <td>' . $expectedEndTime . '</td>';
@@ -228,31 +243,20 @@ $slotNum = $array[0]['slotNum'];
         echo '          <form method="POST">';
         echo '              <input type="hidden" name="checkOutEndTime" value="' . $expectedEndTime . '"/>';
         echo '              <input type="hidden" name="checkOutTotalCost" value="' . $totalCost . '"/>';
-                            //Manually Check Out
+        echo '              <input type="hidden" name="checkOutIntendedCost" value="' . $intendedCosts . '"/>';
+        echo '              <input type="hidden" name="checkOutLateCost" value="' . $lateCosts . '"/>';
+                            //Check Out
         echo '              <button class="btn btn-info" style="height:40px" value="' . $row['transactionId'] . '" name="checkOutTransaction">Check Out</button>';
         echo '          </form>';
         echo '      </td>';
         echo '  </tr>';
     }
     //else, slot has not been booked yet, can book users in.
-    else {
-        $getUsers = new GetUsersController();
-        $array = $getUsers->getUsers();
-    
+    else {    
         echo '<div class="row">';
         echo    '<div class="card" id="form-card">';
         echo        '<div class="card-body">';
         echo            '<form method="POST">';
-        echo                '<div class="mb-3">';
-        echo                    '<label for="date" class="form-label">User:</label>';
-        echo                    '<select name="userId">';
-        for($i = 0; $i < count($array); $i++)
-        {
-            $row = $array[$i];
-            echo                '<option value=' . $row['userId'] . '>' . $row['username'] . '</option>';
-        }
-        echo                    '</select>';
-        echo                '</div>';
         echo                '<div class="form-group">';
         echo                    '<label for="datetime">Date and Time:</label>';
         echo                    '<input type="datetime-local" class="form-control" id="datetime" name="startTime" required>';

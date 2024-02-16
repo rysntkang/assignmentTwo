@@ -1,5 +1,12 @@
 <?php
 session_start();
+
+if(isset($_POST["logout"]))
+{
+    include "../../session_unset.php";
+    
+}
+
 ?>
 <style>
     .navbar-collapse {
@@ -29,7 +36,7 @@ session_start();
         <span class="sr-only">Toggle Dropdown</span>
       </button>
       <div class="dropdown-menu dropdown-menu-right" role="menu">
-        <a class="dropdown-item" href="../../loginPage.php"><span class="fas fa-sign-out-alt"></span> Logout</a>
+        <a class="dropdown-item" href="../../loginPage.php" name="logout"><span class="fas fa-sign-out-alt"></span> Logout</a>
       </div>
     </div>
   </ul>

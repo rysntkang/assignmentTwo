@@ -71,26 +71,29 @@ if(isset($_POST["createLocation"]))
         <div class="card">
             <div class="card-body">
                 <form method="POST">
+                    <div class="mb-1">
+                        <label class="form-label">Add Parking Location</label>
+                    </div>
                     <div class="mb-3">
-                        <label for="date" class="form-label">Location Name:</label>
+                        <label class="form-label">Location Name:</label>
                         <input type="text" class="form-control" name="locationName">
                     </div>
                     <div class="mb-3">
-                        <label for="date" class="form-label">Description:</label>
+                        <label class="form-label">Description:</label>
                         <input type="text" class="form-control" name="description">
                     </div>
                     <div class="mb-3">
-                        <label for="date" class="form-label">Address:</label>
+                        <label class="form-label">Address:</label>
                         <input type="text" class="form-control" name="address">
                     </div>
                     <div class="mb-3">
-                        <label for="date" class="form-label">Hourly Rates:</label>
-                        <input type="number" value="5" min="1" max="10" step=".01" name="rates">
-                        <label for="date" class="form-label">Hourly Late Rates:</label>
-                        <input type="number" value="5" min="1" max="10" step=".01" name="ratesLate">
+                        <label class="form-label">Hourly Rates:</label>
+                        <input type="number" value="1" min="1" max="10" step="1" name="rates">
+                        <label class="form-label">Hourly Late Rates:</label>
+                        <input type="number" value="3" min="1" max="10" step="1" name="ratesLate">
                     </div>
                     <div class="mb-3">
-                        <label for="date" class="form-label">Number of parking slots:</label>
+                        <label class="form-label">Number of parking slots:</label>
                         <input type="number" value="5" min="1" max="10" name="capacity">
                     </div>
                     <button class="btn btn-success" type="submit" name="createLocation" id="createButton">Create</button>

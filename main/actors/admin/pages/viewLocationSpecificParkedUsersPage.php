@@ -1,8 +1,8 @@
 <?php 
 include "../../../dbConnection.php";
-include "../../../entities/parkingSlotsEntity.php";
+include "../../../entities/transactionEntity.php";
 include "../../../entities/parkingLocationEntity.php";
-include "../../../controller/viewAllParkingSlotsController.php";
+include "../../../controller/admin/viewLocationTransactionController.php";
 include "../../../controller/getParkingLocationController.php";
 
 $locationId = $_SESSION['locationId'];
@@ -10,6 +10,7 @@ $locationId = $_SESSION['locationId'];
 if(isset($_POST["viewParkingSlots"]))
 {
     $slotId = $_POST["viewParkingSlots"];
+
     $_SESSION['slotId'] = $slotId;
 
     header("location:index.php?page=viewParkingSlotPage");
@@ -17,9 +18,9 @@ if(isset($_POST["viewParkingSlots"]))
 
 if(isset($_POST["back"]))
 {
-  unset($_SESSION['locationId']);
-  header("location:index.php?page=viewAllParkingLocationPage");
+    header("location:index.php?page=viewAllParkingLocationPage");
 }
+
 
 ?>
 
@@ -49,15 +50,18 @@ if(isset($_POST["back"]))
       border-color: black;
     }
 
-    .search-container {
+    .input-group {
       float: right;
       margin: 1em;
     }
 
-    .search-container input {
+    .input-group input {
       height: 35px;
       margin-left: 1em;
-      text-align: right;
+    }
+
+    #back-button {
+        padding: auto;
     }
 
 </style>
@@ -78,14 +82,14 @@ $occupied = $array[0]['occupied'];
 ?>
 
 <div class="container">
-
   <div class="row">
     <div class="card">
       <div class="card-body">
-          <div class="mb-1">
-            <label class="form-label">View All Parking Slots within this Parking Location:</label>
-          </div>
         
+          <div class="mb-1">
+            <label class="form-label">View All Currently Parked Users within this Parking Location:</label>
+          </div>
+
           <div class="mb-3">
             <label for="date" class="form-label">Location Name:</label>
             <?php echo($locationName) ?>
@@ -122,34 +126,30 @@ $occupied = $array[0]['occupied'];
   </div>
     <div class="row">
         <?php
-            $viewAllParkingSlots = new ViewAllParkingSlotsController();
-            $array = $viewAllParkingSlots->viewAllParkingSlots($locationId);
-
+            $viewLocationTransaction = new ViewLocationTransactionController();
+            $array = $viewLocationTransaction->viewLocationTransaction($locationId);
             echo '<table class ="table">';
             echo '  <tr>';
+            echo '      <th class="text-center">Username</th>';
+            echo '      <th class="text-center">Name</th>';
+            echo '      <th class="text-center">Email Address</th>';
+            echo '      <th class="text-center">Start Time</th>';
+            echo '      <th class="text-center">Duration</th>';
             echo '      <th class="text-center">Slot Number</th>';
-            echo '      <th class="text-center">Available?</th>';
-            echo '      <th class="text-center" colspan="2" style="width:20%">Actions</th>';
+            echo '      <th class="text-center">Actions</th>';
             echo '  </tr>';
             foreach($array as $row)
             {
                 echo '  <tr>';
+                echo '      <td>' . $row['username'] . '</td>';
+                echo '      <td>' . $row['firstName'] . ' ' . $row['surname'] . '</td>';
+                echo '      <td>' . $row['emailAddress'] . '</td>';
+                echo '      <td>' . $row['startTime'] . '</td>';
+                echo '      <td>' . $row['actualDuration'] . '</td>';
                 echo '      <td>' . $row['slotNum'] . '</td>';
-                
-                if ($row['availability'] == 1 ){
-                  $availability = "Yes";
-                } 
-                  else {
-                    $availability = "No";
-                  }
-
-                echo '      <td>' . $availability . '</td>';
-                echo '      <td>';
-                echo '          <form method="POST">';
-                                    //Update Button
-                echo '              <button class="btn btn-primary" style="height:40px" value="' . $row['slotId'] . '" name="viewParkingSlots">View</button>';
-                echo '          </form>';
-                echo '      </td>';
+                echo '      <form method="POST">';
+                echo '      <td><button class="btn btn-primary" style="height:40px" value="' . $row['slotId'] . '" name="viewParkingSlots">View</button></td>';
+                echo '      </form>';
                 echo '  </tr>';
             }
             echo "</table>";

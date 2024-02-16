@@ -2,7 +2,7 @@
 include "config.php";
 include "../dbConnection.php";
 include "../entities/userEntity.php";
-include "../controller/registerUserController.php";
+include "../controller/registerController.php";
 include "../header.php";
 
 
@@ -12,12 +12,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $firstName = $_POST['regFirstName'];
         $surname = $_POST['regSurname'];
         $phoneNum = $_POST['regPhoneNum'];
-        $emailAddress = $_POST['regEmailAddress'];
+        $emailAddress = $_POST['regEmail'];
         $username = $_POST['regUsername'];
         $password = $_POST['regPassword'];
         $userProfileId = 2;
 
-        $registerUser = new registerUserController();
+        $registerUser = new RegisterController();
         $result = $registerUser->registerUser($username, $password, $firstName, $surname, $phoneNum, $emailAddress, $userProfileId);
 
         if ($result == "Success")
@@ -88,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
 
         <div class="input-group mb-3">
-          <input type="text" class="form-control" name="regEmailAddress" autofocus placeholder="Email Address" required>
+          <input type="text" class="form-control" name="regEmail" autofocus placeholder="Email Address" required>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-envelope"></span>

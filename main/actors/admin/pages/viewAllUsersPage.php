@@ -23,32 +23,42 @@ include "../../../controller/admin/searchUserController.php";
       border-color: black;
     }
 
-    .search-container {
+    .input-group {
       float: right;
       margin: 1em;
     }
 
-    .search-container input {
+    .input-group input {
       height: 35px;
       margin-left: 1em;
-      text-align: center;
     }
 
 </style>
 
 <div class="container">
     <div class="row">
-        <div class="search-container ml-auto">
-            <form method="POST">
-                <input type="text" name="search" id="myInput" placeholder="Search">
-            </form>
+        <div class="col-md-9">
+            
+        </div>
+
+        <div class="col-md-3">
+            <div class="input-group">
+                <form method = "POST">
+                    <div class="input-group">
+                        <input type="username" class="form-control" name="username" placeholder="Username">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit" name="search">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     <div class="row">
         <?php
         if(isset($_POST["search"]))
         {
-            $username = $_POST["search"];
+            $username = $_POST["username"];
         
             $searchUser = new SearchUserController();
             $array = $searchUser->searchUser($username);

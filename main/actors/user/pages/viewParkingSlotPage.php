@@ -1,18 +1,16 @@
 <?php 
 include "../../../dbConnection.php";
 include "../../../entities/parkingSlotsEntity.php";
-include "../../../entities/parkingLocationEntity.php";
 include "../../../entities/userEntity.php";
 include "../../../entities/transactionEntity.php";
 include "../../../controller/getUsersController.php";
 include "../../../controller/CheckInTransactionController.php";
 include "../../../controller/ViewTransactionController.php";
 include "../../../controller/CheckOutTransactionController.php";
-include "../../../controller/getParkingLocationController.php";
-include "../../../controller/getParkingSlotController.php";
 
 $locationId = $_SESSION['locationId'];
 $slotId = $_SESSION['slotId'];
+
 
 if(isset($_POST["checkInTransaction"]))
 {
@@ -35,7 +33,7 @@ if(isset($_POST["checkInTransaction"]))
       $actualDuration = $_POST["actualDuration"];
 
       $checkInTransaction = new CheckInTransactionController();
-      $error = $checkInTransaction->checkInTransaction($userId, $locationId, $slotId, $startTime, $actualDuration, $intendedDuration);
+      $error = $checkInTransaction->checkInTransaction($userId, $locationId, $slotId, $startTime, $intendedDuration, $actualDuration);
 
       if ($error == "Success")
       {
@@ -63,11 +61,6 @@ if(isset($_POST["checkOutTransaction"]))
     $error = $checkOutTransaction->checkOutTransaction($transactionId, $locationId, $slotId, $endTime, $totalCost);
  
     header("location:index.php?page=viewAllParkingSlotsPage");
-}
-
-if(isset($_POST["back"]))
-{
-    header("location:index.php?page=viewLocationSpecificParkedUsersPage");
 }
 
 ?>
@@ -113,36 +106,10 @@ if(isset($_POST["back"]))
 
 </style>
 
-<?php
-
-//Retrieve Details from parkingLocations DB based on $locationId
-$getParkingLocation = new GetParkingLocationController();
-$array = $getParkingLocation->getParkingLocation($locationId);
-
-$locationName = $array[0]['locationName'];
-$description = $array[0]['description'];
-$address = $array[0]['address'];
-$rates = $array[0]['rates'];
-$ratesLate = $array[0]['ratesLate'];
-$capacity = $array[0]['capacity'];
-$occupied = $array[0]['occupied'];
-
-$getParkingSlot = new GetParkingSlotController();
-$array = $getParkingSlot->getParkingSlot($slotId);
-
-$availability = $array[0]['availability'];
-$slotNum = $array[0]['slotNum'];
-
-?>
-
 <div class="container">
   <div class="row">
     <div class="card">
       <div class="card-body">
-
-          <div class="mb-1">
-            <label class="form-label">View parking details within this parking location:</label>
-          </div>
         
           <div class="mb-3">
             <label for="date" class="form-label">Location Name:</label>
@@ -165,12 +132,6 @@ $slotNum = $array[0]['slotNum'];
           <div class="mb-3">
             <label for="date" class="form-label">Slot Number: </label>
             <?php echo($slotNum) ?>
-          </div>
-
-          <div class="mb-3">
-            <form method = "POST">
-              <button class="btn btn-secondary" type="submit" name="back">Back</button>
-            </form>
           </div>
 
         </div>
@@ -206,11 +167,10 @@ $slotNum = $array[0]['slotNum'];
         //Adding duration to the startTime to get an expectedEndTime and actualEndTime
         $startTimeDateTime = new DateTime($row['startTime']);
         $endTimeDateTime = clone $startTimeDateTime;
+
         $endTimeDateTime->modify("+" . $row['intendedDuration'] . " hours");
         $expectedEndTime = $endTimeDateTime->format("Y-m-d H:i");
 
-        $startTimeDateTime = new DateTime($row['startTime']);
-        $endTimeDateTime = clone $startTimeDateTime;
         $endTimeDateTime->modify("+" . $row['actualDuration'] . " hours");
         $actualEndTime = $endTimeDateTime->format("Y-m-d H:i");
         
@@ -235,24 +195,11 @@ $slotNum = $array[0]['slotNum'];
         echo '  </tr>';
     }
     //else, slot has not been booked yet, can book users in.
-    else {
-        $getUsers = new GetUsersController();
-        $array = $getUsers->getUsers();
-    
+    else {    
         echo '<div class="row">';
         echo    '<div class="card" id="form-card">';
         echo        '<div class="card-body">';
         echo            '<form method="POST">';
-        echo                '<div class="mb-3">';
-        echo                    '<label for="date" class="form-label">User:</label>';
-        echo                    '<select name="userId">';
-        for($i = 0; $i < count($array); $i++)
-        {
-            $row = $array[$i];
-            echo                '<option value=' . $row['userId'] . '>' . $row['username'] . '</option>';
-        }
-        echo                    '</select>';
-        echo                '</div>';
         echo                '<div class="form-group">';
         echo                    '<label for="datetime">Date and Time:</label>';
         echo                    '<input type="datetime-local" class="form-control" id="datetime" name="startTime" required>';

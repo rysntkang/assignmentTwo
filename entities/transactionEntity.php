@@ -269,10 +269,54 @@ class TransactionEntity extends Dbh
         return $array;
     }
 
+    protected function viewParked(){
+        $array = [];
+        $conn = $this->connectDB();
+        $sql = "SELECT transactions.transactionId, transactions.startTime, transactions.actualDuration, transactions.intendedDuration, 
+        users.userId, users.username,
+        parkingslots.slotNum, parkingslots.slotId, parkingslots.availability, parkingslots.locationId,
+        locations.locationName, locations.address
+                FROM transactions
+                JOIN users ON users.userId = transactions.userId
+                JOIN parkingslots ON parkingslots.slotId = transactions.slotId
+                JOIN locations ON parkingslots.locationId = locations.locationId
+                WHERE transactions.endTime IS NULL;";
+    
+        $result = $conn->query($sql);
+
+		//checks to see if there are return results
+        if ($result->num_rows > 0)
+        {
+            while ($row = $result->fetch_assoc())
+            {
+				//adds the necessary components to use for the view in the table
+                $current = array(
+
+                    'userId' => $row['userId'],
+                    'username' => $row['username'],
+                    'transactionId' => $row['transactionId'],
+                    'startTime' => $row['startTime'],
+                    'actualDuration' => $row['actualDuration'],
+                    'intendedDuration' => $row['intendedDuration'],
+                    'slotNum' => $row['slotNum'],
+                    'slotId' => $row['slotId'],
+                    'availability' => $row['availability'],
+                    'locationId' => $row['locationId'],
+                    'locationName' => $row['locationName'],
+                    'address' => $row['address'],
+                );
+				//pushes them into the array (current)
+                array_push($array, $current);
+            }
+        }
+
+        return $array;
+    }
+
     protected function viewAllPrevCheckIn(){
         $array = [];
         $conn = $this->connectDB();
-        $sql = "SELECT transactions.transactionId, transactions.startTime, transactions.endTime, transactions.actualDuration, transactions.intendedDuration, 
+        $sql = "SELECT transactions.transactionId, transactions.startTime, transactions.endTime, transactions.actualDuration, transactions.intendedDuration, transactions.totalCost,
         parkingslots.slotNum, parkingslots.slotId, parkingslots.availability, parkingslots.locationId,
         locations.locationName, locations.address, locations.rates, locations.ratesLate
                 FROM transactions
@@ -295,6 +339,7 @@ class TransactionEntity extends Dbh
                     'endTime' => $row['endTime'],
                     'actualDuration' => $row['actualDuration'],
                     'intendedDuration' => $row['intendedDuration'],
+                    'totalCost' => $row['totalCost'],                   
                     'slotNum' => $row['slotNum'],
                     'slotId' => $row['slotId'],
                     'availability' => $row['availability'],
@@ -312,6 +357,36 @@ class TransactionEntity extends Dbh
 
         return $array;
     }
+
+    protected function viewCheckIn(){
+        $array = [];
+        $conn = $this->connectDB();
+        $sql = "SELECT userId
+                FROM transactions
+                WHERE slotId = '$this->slotId' AND totalCost IS NULL;";
+    
+        $result = $conn->query($sql);
+
+		//checks to see if there are return results
+        if ($result->num_rows > 0)
+        {
+            while ($row = $result->fetch_assoc())
+            {
+				//adds the necessary components to use for the view in the table
+                $current = array(
+
+                    'userId' => $row['userId'],
+
+                );
+				//pushes them into the array (current)
+                array_push($array, $current);
+            }
+        }
+
+        return $array;
+    }
+
+
 
 }
 

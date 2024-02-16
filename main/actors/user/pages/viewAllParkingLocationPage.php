@@ -20,12 +20,12 @@ if(isset($_POST["viewAllParkingSlots"]))
     header("location:index.php?page=viewAllParkingSlotsPage");
 }
 
-if(isset($_POST["viewLocationSpecificParkedUsers"]))
+if(isset($_POST["viewAllParkedUsers"]))
 {
-    $viewLocationId = $_POST["viewLocationSpecificParkedUsers"];
+    $viewLocationId = $_POST["viewAllParkedUsers"];
     $_SESSION['locationId'] = $viewLocationId;
 
-    header("location:index.php?page=viewLocationSpecificParkedUsersPage");
+    header("location:index.php?page=viewAllParkedUsersPage");
 }
 
 ?>
@@ -67,9 +67,9 @@ if(isset($_POST["viewLocationSpecificParkedUsers"]))
                     <div class="input-group-prepend">
                         <span class="input-group-text">Name, Description, Address</span>
                     </div>
-                    <input type="text" class="form-control" name="searchLocationName">
-                    <input type="text" class="form-control" name="searchDescription">
-                    <input type="text" class="form-control" name="searchAddress">
+                    <input type="Name" class="form-control" name="searchLocationName">
+                    <input type="Description" class="form-control" name="searchDescription">
+                    <input type="Address" class="form-control" name="searchAddress">
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="submit" name="search">Search</button>
                     </div>
@@ -96,9 +96,9 @@ if(isset($_POST["viewLocationSpecificParkedUsers"]))
         //Got Search
         if(isset($_POST["search"]))
         {
-            $locationName = $_POST['searchLocationName'];
-            $description = $_POST['searchDescription'];
-            $address = $_POST['searchAddress'];
+            $locationName = $_SESSION['searchLocationName'];
+            $description = $_SESSION['searchDescription'];
+            $address = $_SESSION['searchAddress'];
 
             $searchParking = new SearchParkingController();
             $array = $searchParking->searchParking($locationName, $description, $address);
@@ -112,18 +112,6 @@ if(isset($_POST["viewLocationSpecificParkedUsers"]))
                 }
                 else
                 {
-                    if(isset($_POST["filter"])){
-                        if ($_POST["filterType"] == "available") {
-                            $array = array_filter($array, function($row) {
-                                return $row['capacity'] >= $row['occupied'];
-                            });
-                        } elseif ($_POST["filterType"] == "full") {
-                            $array = array_filter($array, function($row) {
-                                return $row['capacity'] <= $row['occupied'];
-                            });
-                        }                        
-                    }
-
                     echo '<table class ="table">';
                     echo '  <tr>';
                     echo '      <th class="text-center">Location Id</th>';
@@ -150,14 +138,8 @@ if(isset($_POST["viewLocationSpecificParkedUsers"]))
                         echo '      <td>' . $row['occupied'] . '</td>';
                         echo '      <td>';
                         echo '          <form method="POST">';
-                                            //Update Button
-                        echo '              <button class="btn btn-primary" style="height:40px" value="' . $row['locationId'] . '" name="updateParkingLocation">Update</button>';
                                             //View More Detail Button
                         echo '              <button class="btn btn-info" style="height:40px" value="' . $row['locationId'] . '" name="viewAllParkingSlots">View Details</button>';
-                                            //View All Parked Users in that Location Button
-                                            if ($row['occupied'] > 0) {
-                                            echo '<button class="btn btn-secondary" style="height:40px" value="' . $row['locationId'] . '" name="viewLocationSpecificParkedUsers">List Users</button>';
-                                            }
                         echo '          </form>';
                         echo '      </td>';
                         echo '  </tr>';
@@ -183,7 +165,8 @@ if(isset($_POST["viewLocationSpecificParkedUsers"]))
                     });
                 }
             }
-
+            
+       
             if(!empty($array)) {
                 echo '<table class ="table">';
                 echo '  <tr>';
@@ -210,14 +193,9 @@ if(isset($_POST["viewLocationSpecificParkedUsers"]))
                     echo '      <td>' . $row['occupied'] . '</td>';
                     echo '      <td>';
                     echo '          <form method="POST">';
-                                        //Update Button
-                    echo '              <button class="btn btn-primary" style="height:40px" value="' . $row['locationId'] . '" name="updateParkingLocation">Update</button>';
                                         //View Parking Slots
                     echo '              <button class="btn btn-info" style="height:40px" value="' . $row['locationId'] . '" name="viewAllParkingSlots">View Parking Slots</button>';
                                         //View all users that are parked to that specific location
-                                        if ($row['occupied'] > 0) {
-                                            echo '<button class="btn btn-secondary" style="height:40px" value="' . $row['locationId'] . '" name="viewLocationSpecificParkedUsers">List Users</button>';
-                                        }
                     echo '          </form>';
                     echo '      </td>';
                     echo '  </tr>';
@@ -234,7 +212,7 @@ if(isset($_POST["viewLocationSpecificParkedUsers"]))
                     </div>
                 </div>';
 
-            }
+            }        
         }
         ?>
     </div>

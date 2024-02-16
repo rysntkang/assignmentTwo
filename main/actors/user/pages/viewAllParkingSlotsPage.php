@@ -2,17 +2,19 @@
 include "../../../dbConnection.php";
 include "../../../entities/parkingSlotsEntity.php";
 include "../../../entities/parkingLocationEntity.php";
+include "../../../entities/transactionEntity.php";
 include "../../../controller/viewAllParkingSlotsController.php";
 include "../../../controller/getParkingLocationController.php";
+include "../../../controller/user/viewCheckInSlotController.php";
 
 $locationId = $_SESSION['locationId'];
 
-if(isset($_POST["viewParkingSlots"]))
+if(isset($_POST["check"]))
 {
-    $slotId = $_POST["viewParkingSlots"];
+    $slotId = $_POST["check"];
     $_SESSION['slotId'] = $slotId;
 
-    header("location:index.php?page=viewParkingSlotPage");
+    header("location:index.php?page=checkInCheckOutPage");
 }
 
 if(isset($_POST["back"]))
@@ -78,13 +80,9 @@ $occupied = $array[0]['occupied'];
 ?>
 
 <div class="container">
-
   <div class="row">
     <div class="card">
       <div class="card-body">
-          <div class="mb-1">
-            <label class="form-label">View All Parking Slots within this Parking Location:</label>
-          </div>
         
           <div class="mb-3">
             <label for="date" class="form-label">Location Name:</label>
@@ -146,8 +144,19 @@ $occupied = $array[0]['occupied'];
                 echo '      <td>' . $availability . '</td>';
                 echo '      <td>';
                 echo '          <form method="POST">';
-                                    //Update Button
-                echo '              <button class="btn btn-primary" style="height:40px" value="' . $row['slotId'] . '" name="viewParkingSlots">View</button>';
+                                    if ($row['availability'] == 1){
+                                    //Check In Button
+                echo '              <button class="btn btn-primary" style="height:40px" value="' . $row['slotId'] . '" name="check">Check In</button>';
+                                    } else {
+                                      //Get the userId from the transaction, matching with the specific slot.
+                                      $viewCheckInSlot = new ViewCheckInSlotController();
+                                      $array1 = $viewCheckInSlot->viewCheckInSlot($row['slotId']);
+                                      //IF the userId from the transaction matches with the current userId, show the Check out Button
+                                      if ($array1[0]['userId'] == $_SESSION['currentUserId']) {
+                                      //Check Out Button
+                echo '              <button class="btn btn-primary" style="height:40px" value="' . $row['slotId'] . '" name="check">Check Out</button>';                                        
+                                      }
+                                    }
                 echo '          </form>';
                 echo '      </td>';
                 echo '  </tr>';

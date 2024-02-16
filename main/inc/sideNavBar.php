@@ -24,6 +24,20 @@
           </a>
         </li>
 
+        <li class="nav-item">
+          <a href="index.php?page=viewAllCheckInUsersPage" class="nav-link nav-home">
+            <i class="nav-icon fas fa-address-card active"></i>
+            <p>View All Checked In Users</p>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="index.php?page=registerAdminPage" class="nav-link nav-home">
+            <i class="nav-icon fas fa-address-card active"></i>
+            <p>Register Admin User</p>
+          </a>
+        </li>
+
         <li class="nav-header">Parking Locations</li>
 
         <li class="nav-item">
@@ -39,19 +53,6 @@
           </a>
         </li>
 
-        <li class="nav-item">
-        <a href="index.php?page=viewFullBookedPage" class="nav-link nav-home">
-          <i class="nav-icon fas fa-parking"></i>
-          <p>Fully Parked locations</p>
-        </a>
-
-        <li class="nav-item">
-        <a href="index.php?page=viewVacantBookedPage" class="nav-link nav-home">
-          <i class="nav-icon fas fa-parking"></i>
-          <p>Vacant Parking Locations</p>
-        </a>
-      </li>
-
       </ul>
     </nav>
   </div>';
@@ -60,23 +61,34 @@
   //User Side Bar
   elseif ($_SESSION["currentUserProfileId"] == 2)
   {
-    echo '  
-    <div class="sidebar">
+    echo 
+    '<div class="sidebar">
     <nav class="mt-4">
       <ul class="nav nav-pills nav-sidebar flex-column text-sm nav-compact nav-flat" role="menu">
-        <li class="nav-header">Work Slots</li>
+
+        <li class="nav-header">Parking Locations</li>
+
         <li class="nav-item">
-          <a href="index.php?page=viewWorkslotsBoundary" class="nav-link nav-home">
-            <i class="nav-icon fas fa-briefcase active"></i>
-            <p>View Workslots</p>
+          <a href="index.php?page=viewAllParkingLocationPage" class="nav-link nav-home">
+            <i class="nav-icon fas fa-parking"></i>
+            <p>View All Parking Locations</p>
           </a>
         </li>
+
         <li class="nav-item">
-          <a href="index.php?page=createWorkslotsBoundary" class="nav-link nav-home">
-            <i class="nav-icon fas fa-clock"></i>
-            <p>Create Workslots</p>
+          <a href="index.php?page=viewCurrentlyCheckInTransactionPage" class="nav-link nav-home">
+            <i class="nav-icon fas fa-parking"></i>
+            <p>View Currently Checked In</p>
           </a>
         </li>
+
+        <li class="nav-item">
+          <a href="index.php?page=viewAllPrevCheckInTransactionPage" class="nav-link nav-home">
+            <i class="nav-icon fas fa-parking"></i>
+            <p>View Prev Check In</p>
+          </a>
+        </li>
+
       </ul>
     </nav>
   </div>';
